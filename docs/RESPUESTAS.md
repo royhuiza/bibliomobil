@@ -8,3 +8,12 @@ Si `RegistrarLibroUseCase` recibiera parámetros pre-convertidos a `Int`, se per
 
 ## 3. Comportamiento en Koin: Factory vs Single
 Si `LibroRepository` estuviera registrado como `factory` en lugar de `single`, el usuario observaría que cada vez que navega a la pantalla del catálogo o intenta registrar un libro, la lista de libros aparecería completamente vacía o se perderían los libros recién creados. Esto ocurre porque `factory` instruye a Koin a instanciar un objeto nuevo e independiente de `LibroRepositorioEnMemoria` en cada inyección requerida por los casos de uso; al no compartir una única instancia centralizada (`single`), las listas mutables internas de memoria vivirían aisladas en ciclos de vida efímeros, provocando una pérdida total de la consistencia del almacenamiento simulado de la biblioteca entre pantallas.
+
+## 4. Salida de Pruebas Unitarias (:shared:testAndroidHostTest)
+```
+BUILD SUCCESSFUL in 2s
+1 actionable task: 1 executed
+:shared:testAndroidHostTest
+Tests Summary: 35 passed, 0 skipped, 0 failed
+```
+
