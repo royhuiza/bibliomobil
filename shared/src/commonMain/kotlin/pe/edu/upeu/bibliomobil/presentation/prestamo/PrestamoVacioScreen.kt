@@ -8,6 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
+import pe.edu.upeu.bibliomobil.presentation.components.EstadoVacio
+
 /**
  * Pantalla que representa el estado vacío para la gestión de préstamos (RF-05).
  */
@@ -15,23 +17,9 @@ import androidx.compose.ui.unit.dp
 fun PrestamoVacioScreen(
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier.fillMaxSize().padding(32.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = "Historial de Préstamos Vacío",
-                style = MaterialTheme.typography.titleLarge,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Aún no se han registrado préstamos de libros en el sistema. Inicie un nuevo préstamo desde la ficha del lector.",
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.secondary
-            )
-        }
-    }
+    EstadoVacio(
+        titulo = "Historial de Préstamos Vacío",
+        descripcion = "Aún no se han registrado préstamos de libros en el sistema. Inicie un nuevo préstamo desde la ficha del lector.",
+        modifier = modifier
+    )
 }

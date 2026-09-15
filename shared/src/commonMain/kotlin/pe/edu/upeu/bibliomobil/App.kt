@@ -1,47 +1,113 @@
 package pe.edu.upeu.bibliomobil
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.resources.painterResource
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
+import org.koin.compose.KoinContext
+import org.koin.compose.viewmodel.koinViewModel
+import pe.edu.upeu.bibliomobil.presentation.inicio.InicioScreen
+import pe.edu.upeu.bibliomobil.presentation.lector.LectorScreen
+import pe.edu.upeu.bibliomobil.presentation.libro.LibroScreen
+import pe.edu.upeu.bibliomobil.presentation.navigation.DESTINOS
+import pe.edu.upeu.bibliomobil.presentation.navigation.Screen
+import pe.edu.upeu.bibliomobil.presentation.navigation.ScreenSaver
+import pe.edu.upeu.bibliomobil.presentation.prestamo.PrestamoVacioScreen
 
-import bibliomobil.shared.generated.resources.Res
-import bibliomobil.shared.generated.resources.compose_multiplatform
+import pe.edu.upeu.bibliomobil.presentation.theme.BiblioMobilTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Preview
 fun App() {
-    MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
+    KoinContext {
+        // Variable para controlar de manera dinámica el modo oscuro
+        var modoOscuroActivo by rememberSaveable { mutableStateOf(false) }
+
+        BiblioMobilTheme(darkTheme = modoOscuroActivo) {
+            // Estado de navegación que sobrevive a la rotación mediante el Saver personalizado
+            var pantallaActual by rememberSaveable(stateSaver = ScreenSaver) { mutableStateOf<Screen>(Screen.Inicio) }
+            
+            val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+            val scope = rememberCoroutineScope()
+
+            ModalNavigationDrawer(
+                drawerState = drawerState,
+                drawerContent = {
+                    ModalDrawerSheet {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            "BiblioMobil Menu",
+                            modifier = Modifier.padding(16.dp),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        HorizontalDivider()
+                        
+                        // Contenedor de los destinos principales
+                        Column(modifier = Modifier.weight(1f)) {
+                            DESTINOS.forEach { destino ->
+                                NavigationDrawerItem(
+                                    label = { Text(destino.titulo) },
+                                    selected = pantallaActual == destino,
+                                    onClick = {
+                                        pantallaActual = destino
+                                        scope.launch { drawerState.close() }
+                                    },
+                                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                                )
+                            }
+                        }
+
+                        // Interruptor de modo oscuro ubicado de manera fija al pie del menú lateral
+                        HorizontalDivider()
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Modo Oscuro", style = MaterialTheme.typography.bodyMedium)
+                            Switch(
+                                checked = modoOscuroActivo,
+                                onCheckedChange = { modoOscuroActivo = it }
+                            )
+                        }
+                    }
+                }
+            ) {
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = { Text(pantallaActual.titulo) }, // Título alimentado por el destino actual de la lista
+                            navigationIcon = {
+                                IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                                    Icon(Icons.Default.Menu, contentDescription = "Abrir Menú")
+                                }
+                            }
+                        )
+                    }
+                ) { paddingValues ->
+                    Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+                        when (pantallaActual) {
+                            Screen.Inicio -> InicioScreen(
+                                onNavegar = { pantallaActual = it }
+                            )
+                            Screen.Libros -> LibroScreen(
+                                viewModel = koinViewModel(),
+                                modifier = Modifier.fillMaxSize()
+                            )
+                            Screen.Lectores -> LectorScreen(
+                                viewModel = koinViewModel(),
+                                modifier = Modifier.fillMaxSize()
+                            )
+                            Screen.Prestamos -> PrestamoVacioScreen(modifier = Modifier.fillMaxSize())
+                        }
+                    }
                 }
             }
         }

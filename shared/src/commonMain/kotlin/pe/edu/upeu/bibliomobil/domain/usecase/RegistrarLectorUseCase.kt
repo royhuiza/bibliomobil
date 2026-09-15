@@ -35,7 +35,8 @@ class RegistrarLectorUseCase(private val lectorRepository: LectorRepository) {
     suspend fun ejecutar(
         nombre: String,
         dni: String,
-        email: String
+        email: String,
+        telefono: String = ""
     ): Result<Lector> = resultadoDe {
         var errores = ErroresDeLector()
 
@@ -53,11 +54,14 @@ class RegistrarLectorUseCase(private val lectorRepository: LectorRepository) {
             throw LectorInvalidoException(errores)
         }
 
+        val telefonoProcesado = if (telefono.trim().isBlank()) null else telefono.trim()
+
         val nuevoLector = Lector(
             id = "0", // Equivalente a la especificación de ID base 0 en cadena/L
             nombre = nombre.trim(),
             dni = dni.trim(),
             email = email.trim(),
+            telefono = telefonoProcesado,
             estaActivo = true
         )
 

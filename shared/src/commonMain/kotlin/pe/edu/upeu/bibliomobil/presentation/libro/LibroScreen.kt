@@ -13,6 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
+import pe.edu.upeu.bibliomobil.presentation.components.MensajeExito
+import pe.edu.upeu.bibliomobil.presentation.components.ValidatedTextField
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibroScreen(
@@ -37,48 +40,40 @@ fun LibroScreen(
             Text("Registrar Nuevo Libro", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
-            OutlinedTextField(
+            ValidatedTextField(
                 value = state.formulario.titulo,
                 onValueChange = { viewModel.onTituloChange(it) },
-                label = { Text("Título") },
-                isError = state.formulario.tituloError != null,
-                supportingText = state.formulario.tituloError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
-                modifier = Modifier.fillMaxWidth(),
+                label = "Título",
+                error = state.formulario.tituloError,
                 enabled = !state.registrando
             )
             Spacer(modifier = Modifier.height(4.dp))
 
-            OutlinedTextField(
+            ValidatedTextField(
                 value = state.formulario.autor,
                 onValueChange = { viewModel.onAutorChange(it) },
-                label = { Text("Autor") },
-                isError = state.formulario.autorError != null,
-                supportingText = state.formulario.autorError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
-                modifier = Modifier.fillMaxWidth(),
+                label = "Autor",
+                error = state.formulario.autorError,
                 enabled = !state.registrando
             )
             Spacer(modifier = Modifier.height(4.dp))
 
-            OutlinedTextField(
+            ValidatedTextField(
                 value = state.formulario.isbn,
                 onValueChange = { viewModel.onIsbnChange(it) },
-                label = { Text("ISBN") },
-                isError = state.formulario.isbnError != null,
-                supportingText = state.formulario.isbnError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
-                modifier = Modifier.fillMaxWidth(),
+                label = "ISBN",
+                error = state.formulario.isbnError,
                 enabled = !state.registrando
             )
             Spacer(modifier = Modifier.height(4.dp))
 
-            OutlinedTextField(
+            ValidatedTextField(
                 value = state.formulario.totalEjemplares,
                 onValueChange = { viewModel.onTotalEjemplaresChange(it) },
-                label = { Text("Total Ejemplares") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                isError = state.formulario.ejemplaresError != null,
-                supportingText = state.formulario.ejemplaresError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.registrando
+                label = "Total Ejemplares",
+                error = state.formulario.ejemplaresError,
+                enabled = !state.registrando,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -88,7 +83,11 @@ fun LibroScreen(
                 enabled = !state.registrando
             ) {
                 if (state.registrando) {
-                    CircularProgressIndicator(size = 20.dp, strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onPrimary)
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
                 } else {
                     Text("Registrar Libro")
                 }
@@ -96,24 +95,14 @@ fun LibroScreen(
 
             state.mensajeExito?.let {
                 Spacer(modifier = Modifier.height(8.dp))
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(it, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-                        TextButton(onClick = { viewModel.limpiarMensajeExito() }) {
-                            Text("OK")
-                        }
-                    }
-                }
+                MensajeExito(
+                    mensaje = it,
+                    onConfirmar = { viewModel.limpiarMensajeExito() }
+                )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
-            Divider()
+            HorizontalDivider()
             Spacer(modifier = Modifier.height(12.dp))
 
             Text("Catálogo de Libros", style = MaterialTheme.typography.titleMedium)

@@ -8,6 +8,7 @@ data class Lector(
     val nombre: String,
     val dni: String,
     val email: String,
+    val telefono: String? = null,
     val estaActivo: Boolean = true
 ) {
     init {

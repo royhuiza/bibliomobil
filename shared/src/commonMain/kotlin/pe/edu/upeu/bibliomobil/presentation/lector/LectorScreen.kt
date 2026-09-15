@@ -13,6 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
+import pe.edu.upeu.bibliomobil.presentation.components.MensajeExito
+import pe.edu.upeu.bibliomobil.presentation.components.ValidatedTextField
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LectorScreen(
@@ -36,48 +39,42 @@ fun LectorScreen(
             Text("Registrar Nuevo Lector", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
-            OutlinedTextField(
+            ValidatedTextField(
                 value = state.formulario.nombre,
                 onValueChange = { viewModel.onNombreChange(it) },
-                label = { Text("Nombre Completo") },
-                isError = state.formulario.nombreError != null,
-                supportingText = state.formulario.nombreError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
-                modifier = Modifier.fillMaxWidth(),
+                label = "Nombre Completo",
+                error = state.formulario.nombreError,
                 enabled = !state.registrando
             )
             Spacer(modifier = Modifier.height(4.dp))
 
-            OutlinedTextField(
+            ValidatedTextField(
                 value = state.formulario.dni,
                 onValueChange = { viewModel.onDniChange(it) },
-                label = { Text("DNI") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                isError = state.formulario.dniError != null,
-                supportingText = state.formulario.dniError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.registrando
+                label = "DNI",
+                error = state.formulario.dniError,
+                enabled = !state.registrando,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
             Spacer(modifier = Modifier.height(4.dp))
 
-            OutlinedTextField(
+            ValidatedTextField(
                 value = state.formulario.email,
                 onValueChange = { viewModel.onEmailChange(it) },
-                label = { Text("Correo Electrónico") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                isError = state.formulario.emailError != null,
-                supportingText = state.formulario.emailError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.registrando
+                label = "Correo Electrónico",
+                error = state.formulario.emailError,
+                enabled = !state.registrando,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
             Spacer(modifier = Modifier.height(4.dp))
 
-            OutlinedTextField(
+            ValidatedTextField(
                 value = state.formulario.telefono,
                 onValueChange = { viewModel.onTelefonoChange(it) },
-                label = { Text("Teléfono (Opcional)") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.registrando
+                label = "Teléfono (Opcional)",
+                error = null,
+                enabled = !state.registrando,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
             )
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -99,20 +96,10 @@ fun LectorScreen(
 
             state.mensajeExito?.let {
                 Spacer(modifier = Modifier.height(8.dp))
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(it, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-                        TextButton(onClick = { viewModel.limpiarMensajeExito() }) {
-                            Text("OK")
-                        }
-                    }
-                }
+                MensajeExito(
+                    mensaje = it,
+                    onConfirmar = { viewModel.limpiarMensajeExito() }
+                )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
